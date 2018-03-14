@@ -1,0 +1,226 @@
+---
+title: "Hossain_HW2_eco480"
+author: "Husyn"
+date: "March 13, 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+##3.1
+
+
+## Loading in Data
+
+```{r loading in .dta data}
+library(readstata13)
+data1 <- read.dta13("./cps92_12.dta")
+```
+
+
+a.
+
+i.
+```{r mean}
+mean(data1$ahe[which(data1$year == 1992 | data1$year == 2012)])
+```
+
+ii.
+```{r std dev}
+
+sd(data1$ahe[which(data1$year == 1992 | data1$year == 2012)])
+
+```
+
+iii.
+```{r 95CI}
+
+library(gmodels)
+ci(data1$ahe[which(data1$year == 1992 | data1$year == 2012)])
+
+```
+iv.
+```{r dual}
+a <- sqrt(((sd(data1$ahe[which(data1$year == 1992)])^2)/NROW(data1$ahe[which(data1$year == 1992)]))+((sd(data1$ahe[which(data1$year == 2012)])^2)/NROW(data1$ahe[which(data1$year == 2012)])))
+
+abs(mean(data1$ahe[which(data1$year == 1992)]) - mean(data1$ahe[which(data1$year == 2012)])) + 1.96*a
+
+abs(mean(data1$ahe[which(data1$year == 1992)]) - mean(data1$ahe[which(data1$year == 2012)])) - 1.96*a
+```
+
+b.
+i.
+```{r }
+b <- (data1$ahe[which(data1$year == 1992)]/140.3)*229.6
+
+mean(c(data1$ahe[which(data1$year == 2012)],b))
+
+```
+
+ii.
+```{r}
+sd(c((((data1$ahe[which(data1$year == 1992)])/140.3)*229.6), data1$ahe[which(data1$year == 1992)]))
+
+```
+iii.
+```{r }
+library(gmodels)
+ci(c((((data1$ahe[which(data1$year == 1992)])/140.3)*229.6), data1$ahe[which(data1$year == 1992)]))
+
+
+```
+iv.
+```{r }
+c <- data1$ahe[which(data1$year == 1992)]
+d <- (c/140.3) * 229.6
+a <- sqrt(((sd(d)^2)/NROW(d)) + ((sd(data1$ahe[which(data1$year == 2012)])^2)/NROW(data1$ahe[which(data1$year == 2012)])) )
+
+abs((mean(d) - mean(data1$ahe[which(data1$year == 2012)]))) + 1.96*a
+
+abs((mean(d) - mean(data1$ahe[which(data1$year == 2012)]))) - 1.96*a
+
+```
+c.
+You would use the results in b since inflation would distort purchasing power
+
+d.
+i.
+```{r }
+e <- data1$ahe[which(data1$year == 2012)]
+ci(e)
+
+```
+ii.
+```{r }
+f <- data1$ahe[which(data1$year == 2012 & data1$bachelor == 1)]
+ci(f)
+
+```
+iii.
+```{r }
+g <- sqrt((sd(e)^2 / NROW(e)) + (sd(f)^2 / NROW(f)))
+abs(mean(e) - mean(f)) + g
+abs(mean(e) - mean(f)) - g
+
+```
+
+e.
+i.
+```{r }
+h <- (data1$ahe[which(data1$year == 1992)]/140.3)*229.6
+ci(h)
+
+```
+ii.
+```{r }
+i <- (data1$ahe[which(data1$year == 1992 & data1$bachelor == 1)]/140.3)*229.6
+ci(i)
+
+```
+iii.
+```{r }
+j <- sqrt((sd(h)^2 / NROW(h)) + (sd(i)^2 / NROW(i)))
+abs(mean(e) - mean(f)) + j
+abs(mean(e) - mean(f)) - j
+
+```
+f.
+i.
+H0 : mean AHE 1992 - mean AHE 2012  = 0
+H1 : mean AHE 2012 - mean AHE 1992  > 0
+```{r }
+t.test(e,h, "greater")
+
+```
+Very low p value so we reject null, 2012 wages are higher than 1992.
+ii.
+H0 : mean AHE 1992 - mean AHE 2012  = 0
+H1 : mean AHE 2012 - mean AHE 1992  > 0
+```{r }
+coll2012wg <- data1$ahe[which(data1$year == 2012 & data1$bachelor == 1)]
+coll1992wg <- data1$ahe[which(data1$year == 1992 & data1$bachelor == 1)]
+
+t.test(coll2012wg, coll1992wg, "greater")
+
+```
+The p value is very low, so we must reject null hypothesis. Real wages of college graduates did increase.
+
+g.
+``` {r }
+
+library(psych)
+data1992 <- data1[data1$year == 1992,]
+data2012 <- data1[data1$year == 2012,]
+
+describeBy(data1992,data1992$bachelor)
+
+describeBy(data2012,data2012$bachelor)
+
+```
+The wages of college graduates increases more between 1992 and 2012 than high school graduates.
+
+##3.2
+##Loading in Data
+
+```{r }
+library(readstata13)
+Sports <- readstata13::read.dta13("./Sportscards.dta")
+```
+
+a.
+i.
+Since 50% have good B, and all have the option to switch goods, and all have preference for good A, 50% of people will trade.
+
+ii.
+
+At least 50% of people would trade for the other good.
+
+iii.
+
+X% * n + (100 - X)% * n = 50%
+
+b.
+``` {r }
+prcntTrd <- sum(Sports$trade)/nrow(Sports)
+
+```
+H0: %traded = 50%
+H1: %traded < 50%
+
+```{r }
+t.test(x = Sports$trade, alternative = "less", mu = .5)
+
+```
+
+The p-value in the t test is very small, so we must reject null and determine that the fraction of 33.78% is significantly different from 50%
+
+c.
+```{r }
+t.test(x = Sports$trade[Sports$dealer == 1], alternative = "less", mu = 0.5 )
+
+
+
+```
+The p value in this case is large, so we fail to reject the null hypothesis. We can conclude with 95% confidence that the population mean of traders who are dealers is not less than 0.5.
+
+```{r}
+t.test(x = Sports$trade[Sports$dealer == 0], alternative = "less", mu = 0.5 )
+
+
+```
+Here, the p value is very low, so we reject the null and conclude that the population mean of trads made by non dealers is less than 0.5. A stark contrast to the earlier findings with the dealers. This evidence is consistent with the hypothesis that the endowment effect disappears as traders gain more experience.
+
+
+
+
+
+
+
+
+
+
